@@ -68,11 +68,53 @@ def map_col_tbl(col_names, tbl_names):
     tbl_col_map = {}
     n_tbl_names = remove_dbs(tbl_names)
     for col_name in col_names:
-        tbl = col_name[-1]
+        tbl = col_name.split('.')[0]
         if tbl in n_tbl_names.keys():
-            tbl_col_map[col_name] = n_tbl_names[tbl]
+            tbl_col_map[col_name.split('.')[-1]] = n_tbl_names[tbl]
+        else:
+            tbl_col_map[col_name.split('.')[-1]] = "unable to map"
     return tbl_col_map
 
+def get_db(db_list):
+    # Note use sortedDict package if your not using python version 3.5+
+    alias_dtl = {}
+    for db in db_list:
+        if db.lower().rfind(' as ') == -1:
+            as_s = db.split(' ')
+            if len(as_s) == 2:
+                alias_dtl[as_s[0]] = as_s[1]
+            elif match_parahs(db):
+                spc = db.rfind(" ")
+                brac = db.rfind(')')
+                if spc > brac:
+                    alias_dtl[db[:spc]] = db[spc + 1:]
+                else:
+                    alias_dtl[db] = ''
+            else:
+                alias_dtl[db] = ''
+        elif db.lower().rfind(' as ') > -1:
+            a_psn = db.lower().rfind(' as ')
+            alias_dtl[db[:a_psn]] = db[a_psn + 4:]
+    return alias_dtl
+
+def lst_t_str(lst):
+    t_str = ', '.join(lst)
+    return t_str
+
+
+def parse_tb(tb_detail):
+    tb_detail_r = {}
+    for sub_qry, als in tb_detail.items():
+        if als != "":
+            print(sub_qry)
+            n_tb = lst_t_str(extract_tables(str(sub_qry[1:-1])))
+            if n_tb == '':
+                tb_detail_r[sub_qry] = str(als)
+            else:
+                tb_detail_r[n_tb] = str(als)
+        else:
+            tb_detail_r[sub_qry] = als
+    return tb_detail_r
 
 def unfold_col(col):
     col_names_derived = []
@@ -123,7 +165,9 @@ if __name__ == '__main__':
             sql_qry = get_col.parse_sql(sql_query, file_flag='Q')
             col_names = get_col.extract_column_names(sql_qry)
             tbl_names = get_tables.extract_tables(str(sql_qry))
-            cl_tables = map_col_tbl(col_names, tbl_names)
+            tbl_names_as = get_db(tbl_names)
+            rm_db_tbl_name1 = parse_tb(tbl_names_as)
+            cl_tables = map_col_tbl(col_names, rm_db_tbl_name1)
 
             if cl_tables:
                 for col_name, tbl_name in cl_tables.items():
@@ -135,7 +179,9 @@ if __name__ == '__main__':
             for sql_qry in sql_qrys:
                 col_names = get_col.extract_column_names(sql_qry)
                 tbl_names = get_tables.extract_tables(str(sql_qry))
-                cl_tables = map_col_tbl(col_names, tbl_names)
+                tbl_names_as = get_db(tbl_names)
+                rm_db_tbl_name1 = parse_tb(tbl_names_as)
+                cl_tables = map_col_tbl(col_names, rm_db_tbl_name1)
 
                 if cl_tables:
                     for col_name, tbl_name in cl_tables.items():
