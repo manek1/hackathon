@@ -28,8 +28,6 @@ def get_alias(col_name):
         elif match_parahs(col_name):
             spc = col_name.rfind(" ")
             brac = col_name.rfind(')')
-            print(spc)
-            print(brac)
             if spc > brac:
                 alias_dtl[col_name[:spc]] = col_name[spc + 1:]
             else:
@@ -67,7 +65,6 @@ def remove_dbs(tbl_names):
 def map_col_tbl(col_names, tbl_names):
     tbl_col_map = {}
     n_tbl_names = remove_dbs(tbl_names)
-    print("n_tbl_names")
     for col_name in col_names:
         tbl = col_name.split('.')[0]
         if tbl in n_tbl_names.keys():
@@ -97,7 +94,6 @@ def get_db(db_list):
         elif db.lower().rfind(' as ') > -1:
             a_psn = db.lower().rfind(' as ')
             alias_dtl[db[:a_psn]] = db[a_psn + 4:]
-    print("Inside fun", alias_dtl)
     return dict(alias_dtl)
 
 
@@ -169,7 +165,6 @@ if __name__ == '__main__':
             sql_qry = get_col.parse_sql(sql_query, file_flag='Q')
             col_names = get_col.extract_column_names(sql_qry)
             tbl_names = get_tables.extract_tables(str(sql_qry))
-            print("tbl_names", tbl_names)
             tbl_names_as = get_db(tbl_names)
             rm_db_tbl_name1 = parse_tb(tbl_names_as)
             cl_tables = map_col_tbl(col_names, rm_db_tbl_name1)
@@ -183,13 +178,9 @@ if __name__ == '__main__':
             sql_qrys = get_col.parse_sql(sql_file_path)
             for sql_qry in sql_qrys:
                 col_names = get_col.extract_column_names(sql_qry)
-                print("col_names", col_names)
                 tbl_names = get_tables.extract_tables(str(sql_qry))
-                print("tbl_names", tbl_names)
                 tbl_names_as = get_db(tbl_names)
-                print("tbl_names with alias", tbl_names_as)
                 rm_db_tbl_name1 = parse_tb(tbl_names_as)
-                print("tbl_names parse_tb", rm_db_tbl_name1)
                 cl_tables = map_col_tbl(col_names, rm_db_tbl_name1)
 
                 if cl_tables:
