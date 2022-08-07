@@ -32,13 +32,10 @@ def extract_table_identifiers(token_stream):
         # print(type(item))
         if isinstance(item, IdentifierList):
             for identifier in item.get_identifiers():
-                print(identifier)
                 yield str(identifier)  # identifier.get_name()
         elif isinstance(item, Identifier):
-            print(item)
             yield str(item)  # item.get_name()
         elif item.ttype is Keyword:
-            print(item)
             yield str(item.value)
 
 

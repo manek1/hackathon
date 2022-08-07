@@ -59,14 +59,15 @@ def get_c_name(col_name):
 def remove_dbs(tbl_names):
     op_tbl_names = {}
     for als, tbl_name in tbl_names.items():
-        op_tbl_nm = tbl_name.split('.')
-        op_tbl_names[als] = op_tbl_nm
+        op_tbl_nm = tbl_name.split('.')[-1]
+        op_tbl_names[op_tbl_nm] = als
     return op_tbl_names
 
 
 def map_col_tbl(col_names, tbl_names):
     tbl_col_map = {}
     n_tbl_names = remove_dbs(tbl_names)
+    print("n_tbl_names")
     for col_name in col_names:
         tbl = col_name.split('.')[0]
         if tbl in n_tbl_names.keys():
